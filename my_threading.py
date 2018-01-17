@@ -1,8 +1,14 @@
 # -*- coding: utf-8 -*-
+'''
+子线程: 自动运行&有返回值
+'''
+
 from threading import Thread
 import time
-#debug模式显示线程用时
-DEBUG=True
+
+#debug模式:
+#debug=1:显示线程用时:    <线程xxx  用时xxx秒>
+DEBUG=0
 
 #有返回值的线程
 class SubThread(Thread):

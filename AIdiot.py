@@ -1,11 +1,17 @@
 # -*- coding: utf-8 -*-
 
 #Ai ver.2.0 by Simpleson -A Junior PyLearner->(ง •_•)ง,
+#保留了manoshape版本的gethtml和search的部分内容.
 
-#ver1.0作者:Aitext from  by manoshape on Github
+#ver1.0作者: Aitext from  by manoshape on Github
+
+#debug模式:
+#debug=1:各大问答网站词频分开显示
+#debug=2:打印各大网站扒下来的一大坨垃圾= =||
 DEBUG=1
+
+#####################
 import urllib.request,_thread,urllib.parse
-import webbrowser
 from my_threading import SubThread
 class Ai:
     #I/O func:
@@ -62,7 +68,8 @@ class Ai:
         if self.issue.count('不')or self.issue.count('没有') or self.issue.count('从未'): 
             for i in self.ans_count:self.ans_count[i]=-self.ans_count[i]
         ans=self.biggest(self.ans_count)
-        if DEBUG:self.printdebug(DEBUG)
+        if 
+        :self.printdebug(DEBUG)
         print(self.issue)
         print('---------------------------------')
         print(' 选项    出现次数  ')

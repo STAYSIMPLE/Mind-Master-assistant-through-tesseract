@@ -19,15 +19,16 @@ my=Live Young
 import subprocess
 import pytesseract
 from PIL import Image
-import time #用于 计时器
-##local_series:
+import time 
+
 from my_threading import SubThread
 import droid
 from AIdiot import Ai
 import random
 
-#debug模式:保存截图与答案
-DEBUG=False
+#debug>1:保存截图与答案
+#debug>0:输出时间信息
+DEBUG=0
 DEBUG_i=1
 #需要手动完成的初始化操作:
 #请根据题目\手机型号不同,手动调节识别区域= =||
@@ -47,6 +48,13 @@ box=box_mi5
 boxQ={'Q':box['Q']} #确定问题列表{Q}
 boxA=box            #确定选项列表{ABCD}
 boxA.pop('Q')       
+
+#自动单击box
+def box_click(box=()):
+    (x1,y1,x2,y2)=box
+    x=(x1+x2)/2+random.randint(-100,100)
+    y=(y1+y2)/2+random.randint(-20,20)
+    droid.swipe(x,y,x,y,0)
 
 _Lang='chi_sim'
 
@@ -77,16 +85,11 @@ def im_to_str_thread(img,box={},cfg='-psm 7',join=True):
     #返回{SubThread},todo[j].out()即为识别结果.
     return todo
 
-def box_click(box):
-    (x1,y1,x2,y2)=box
-    x=(x1+x2)/2+random.randint(-100,100)
-    y=(y1+y2)/2+random.randint(-20,20)
-    droid.swipe(x,y,x,y,0)
-    #多线程:
-    #[截屏1(usb)]-[问题提取(cpu)]- [问题检索(web)]- [答案查找(pycode)]
-    #            \[截屏2(usb)]   -[答案提取(cpu) ]/
+    #多线程思路:
+    #[截屏1(usb)]-[问题提取(cpu)]-[问题检索(web)]- [答案查找(pycode)]
+    #            \[截屏2(usb)]   -[答案提取(cpu)]/
 def main():
-    input(str(dt())+":Enter for Q")
+    input(":Enter to capture:")
     dt()
     #[截屏1][问题提取
     img=droid.getscreen()
@@ -96,20 +99,18 @@ def main():
     #input("Enter for A")
     threadS=SubThread(func=droid.getscreen)
     threadS.join()
-    #问题提取]
+    #问题提取][问题检索
     for i in threadQ:
         threadQ[i].join()
         Question=threadQ[i].out()
         Question=Question.replace(' ', '')
-    print('==问题用时:'+str(dt())+'秒')
-    #[答案提取
-    img=threadS.out()
-
-    threadA=im_to_str_thread(img,boxA,'-psm 7',join=0)
-
-    #[问题检索
+    if DEBUG>0:print('==问题用时:'+str(dt())+'秒')
     ai=Ai(Question)
     threadAi=SubThread(func=ai.search)
+    #[答案提取
+    img=threadS.out()
+    threadA=im_to_str_thread(img,boxA,'-psm 7',join=0)
+
     #问题检索]
     threadAi.join()
     #答案提取][答案查找
@@ -118,13 +119,13 @@ def main():
         threadA[i].join()
         Answer[i]=threadA[i].out()
         Answer[i]=Answer[i].replace(' ', '')
-    print('==答案用时:'+str(dt())+'秒')
+    if DEBUG>0:print('==答案用时:'+str(dt())+'秒')
     #答案查找]
     ai.answer=Answer
     ans=ai.printans()  
     box_click(boxA[ans])
     print(boxA[ans])
-    if DEBUG:
+    if DEBUG>1:
         global DEBUG_i
         time.sleep(0.7)
         img=droid.getscreen()
